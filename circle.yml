@@ -1,0 +1,7 @@
+test:
+  override:
+    - make test
+
+machine:
+  services:
+    - mongodb
