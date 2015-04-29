@@ -1,7 +1,7 @@
 test:
   override:
     - make test
-      parallel: true
+        parallel: true
 
 machine:
   services:
