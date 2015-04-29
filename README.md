@@ -31,7 +31,7 @@ Here is a list of things you should be aware of:
 Code sample
 ===========
 
-```
+```python
 # First, declare a Document/Collection pair (a "model"):
 
 from mongokat import Collection, Document
