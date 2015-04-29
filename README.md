@@ -41,6 +41,8 @@ TODO
 Tests
 =====
 
+[![Circle CI](https://circleci.com/gh/pricingassistant/mongokat.svg?style=svg)](https://circleci.com/gh/pricingassistant/mongokat)
+
 You can just do `make test` to run the tests after setting up your environment (`make virtualenv` might help)
 
 Contributing
