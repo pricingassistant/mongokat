@@ -1,5 +1,6 @@
 test:
   override:
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit
     - py.test tests/ -v  --junitxml=$CIRCLE_TEST_REPORTS/junit/mongokat.xml:
         parallel: true
 
