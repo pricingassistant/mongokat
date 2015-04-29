@@ -1,8 +1,9 @@
 test:
   override:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit
-    - py.test tests/ -v  --junitxml=$CIRCLE_TEST_REPORTS/junit/mongokat-$CIRCLE_NODE_INDEX.xml:
+    - py.test tests/ -v  --junitxml=$CIRCLE_TEST_REPORTS/junit/mongokat-$CIRCLE_NODE_INDEX.xml --html=$CIRCLE_ARTIFACTS/pytest-report-$CIRCLE_NODE_INDEX.html --cov mongokat --cov-report html:
         parallel: true
+    - mv htmlcov $CIRCLE_ARTIFACTS/coverage
 
 machine:
   services:
