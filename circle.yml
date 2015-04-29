@@ -1,6 +1,6 @@
 test:
   override:
-    - make test:
+    - py.test tests/ -v  --junitxml=$CIRCLE_TEST_REPORTS/junit/mongokat.xml:
         parallel: true
 
 machine:
