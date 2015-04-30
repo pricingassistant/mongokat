@@ -1,7 +1,7 @@
 MongoKat
 ========
 
-MongoKat is a minimalist MongoDB ORM/ODM, inspired by the "hands off" API of `MongoKit <https://github.com/namlook/mongokit>`_. It draws from our experience managing a large Python codebase at `Pricing Assistant <http://www.pricingassistant.com/>`_).
+`MongoKat <https://github.com/pricingassistant/mongokat>`_ is a minimalist MongoDB ORM/ODM, inspired by the "hands off" API of `MongoKit <https://github.com/namlook/mongokit>`_. It was created at `Pricing Assistant <http://www.pricingassistant.com/>`_, drawing from our experience managing a large Python codebase.
 
 It differs from MongoKit in a few ways:
 
@@ -14,19 +14,14 @@ It differs from MongoKit in a few ways:
  - **Support for protected fields** that can't be updated directly. Useful for making sure developers to use specific methods of a Document.
 
 
-Migration guide from MongoKit
-=============================
+Installation
+============
 
-First you should get familiar with the new `CRUD methods <http://api.mongodb.org/python/current/changelog.html#collection-changes>`_) from PyMongo 3.0. All of them work as expected in MongoKat.
+You can either clone the `code from GitHub <https://github.com/pricingassistant/mongokat>`_ or install it via pip:
 
-We have generally tried to limit the changes needed for a migration to the models themselves, while the code actually using them should work without major changes.
-
-Here is a list of things you should be aware of:
-
- - You will have to split your Models into Document and Collection classes. For instance, ``find()`` belongs to a Collection, whereas ``reload()`` belongs to a Document.
- - Initialization logic is different/cleaner, models are not magically registered everywhere, you have to explicitly instanciate them.
- - Structures are not inherited.
-
+```
+pip install mongokat
+```
 
 Code sample
 ===========
@@ -66,20 +61,37 @@ Code sample
 By the way, this is an `actual test
 <https://github.com/pricingassistant/mongokat/blob/master/tests/test_readme_sample.py>`_!
 
+
+Migration guide from MongoKit
+=============================
+
+First you should get familiar with the new `CRUD methods <http://api.mongodb.org/python/current/changelog.html#collection-changes>`_) from PyMongo 3.0. All of them work as expected in MongoKat.
+
+We have generally tried to limit the changes needed for a migration to the models themselves, while the code actually using them should work without major changes.
+
+Here is a list of things you should be aware of:
+
+ - You will have to split your Models into Document and Collection classes. For instance, ``find()`` belongs to a Collection, whereas ``reload()`` belongs to a Document.
+ - Initialization logic is different/cleaner, models are not magically registered everywhere, you have to explicitly instanciate them.
+ - Structures are not inherited.
+
+
 API Reference
 =============
 
-collection
-----------
+mongokat.collection.Collection
+------------------------------
 
 .. autoclass:: mongokat.collection.Collection
 	:members:
+	:undoc-members:
 
-document
---------
+mongokat.document.Document
+--------------------------
 
 .. autoclass:: mongokat.document.Document
 	:members:
+	:undoc-members:
 
 
 Credits

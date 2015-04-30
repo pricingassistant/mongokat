@@ -5,6 +5,7 @@ from pymongo import ReadPreference, WriteConcern, ReturnDocument
 import collections
 from .document import Document
 from .exceptions import MultipleResultsFound, ImmutableDocumentError, ProtectedFieldsError
+from pymongo.collection import Collection as PymongoCollection
 
 
 def _param_fields(kwargs, fields):
@@ -83,6 +84,7 @@ def patch_cursor(cursor, batch_size=None, limit=None, skip=None, sort=None, **kw
 
 
 class Collection(object):
+    """ mongokat.Collection wraps a pymongo.collection.Collection """
 
     __collection__ = None
     __database__ = None
@@ -129,13 +131,13 @@ class Collection(object):
         return bool(self.find(query, **args).limit(1).count())
 
     def count(self, *args, **kwargs):
-        return self.collection_with_options(kwargs).count(*args, **kwargs)
+        return self._collection_with_options(kwargs).count(*args, **kwargs)
 
     def distinct(self, *args, **kwargs):
-        return self.collection_with_options(kwargs).distinct(*args, **kwargs)
+        return self._collection_with_options(kwargs).distinct(*args, **kwargs)
 
     def group(self, *args, **kwargs):
-        return self.collection_with_options(kwargs).group(*args, **kwargs)
+        return self._collection_with_options(kwargs).group(*args, **kwargs)
 
     @find_method
     def aggregate(self, *args, **kwargs):
@@ -145,13 +147,13 @@ class Collection(object):
             kwargs["batchSize"] = kwargs["batch_size"]
             del kwargs["batch_size"]
 
-        return self.collection_with_options(kwargs).aggregate(*args, **kwargs)
+        return self._collection_with_options(kwargs).aggregate(*args, **kwargs)
 
     @find_method
     def find(self, *args, **kwargs):
-        return self.collection_with_options(kwargs).find(*args, **kwargs)
+        return self._collection_with_options(kwargs).find(*args, **kwargs)
 
-    def collection_with_options(self, kwargs):
+    def _collection_with_options(self, kwargs):
         """ Returns a copy of the pymongo collection with various options set up """
 
         # class DocumentClassWithFields(self.document_class):
@@ -194,7 +196,10 @@ class Collection(object):
 
     @find_method
     def find_one(self, *args, **kwargs):
-        doc = self.collection_with_options(kwargs).find_one(*args, **kwargs)
+        """
+        Get a single document from the database.
+        """
+        doc = self._collection_with_options(kwargs).find_one(*args, **kwargs)
         if doc is None:
             return None
 
@@ -245,7 +250,7 @@ class Collection(object):
         }
         find_kwargs["projection"][field] = True
 
-        cursor = self.collection_with_options(kwargs).find(query, **find_kwargs)  # We only want 1 field: bypass the ORM
+        cursor = self._collection_with_options(kwargs).find(query, **find_kwargs)  # We only want 1 field: bypass the ORM
 
         patch_cursor(cursor, **kwargs)
 
@@ -607,3 +612,4 @@ class Collection(object):
             forbidden_fields = set(data.keys()) & set(self.protected_fields)
             if len(forbidden_fields) > 0:
                 raise ProtectedFieldsError("cannot set those keys without allow_protected_fields : %s" % forbidden_fields)
+

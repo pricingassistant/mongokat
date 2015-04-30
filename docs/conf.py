@@ -120,9 +120,9 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-else:
-    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-    import mongokat
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+import mongokat
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -297,4 +297,5 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
 
-autosummary_generate = True
+# http://sphinx-doc.org/ext/autodoc.html#module-sphinx.ext.autodoc
+autodoc_member_order = "bysource"
