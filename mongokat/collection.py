@@ -7,7 +7,7 @@ from .document import Document
 from .exceptions import MultipleResultsFound, ImmutableDocumentError, ProtectedFieldsError
 
 
-def param_fields(kwargs, fields):
+def _param_fields(kwargs, fields):
   """
     Normalize the "fields" argument to most find methods
   """
@@ -23,20 +23,23 @@ def param_fields(kwargs, fields):
 def find_method(func):
   """
     Decorator that manages smart defaults or transforms for common find methods:
-      * fields/projection: list of fields to be returned. Contrary to pymongo, _id won't be added automatically
-      * json: performs a json_clone on the results. Beware of performance!
+
+     - fields/projection: list of fields to be returned. Contrary to pymongo, _id won't be added automatically
+     - json: performs a json_clone on the results. Beware of performance!
+     - timeout
+     - return_document
   """
   def wrapped(*args, **kwargs):
 
     # Normalize the fields argument if passed as a positional param.
     if len(args) == 3 and func.__name__ in ("find", "find_one", "find_by_id", "find_by_ids"):
-      param_fields(kwargs, args[2])
+      _param_fields(kwargs, args[2])
       args = (args[0], args[1])
     elif "fields" in kwargs:
-      param_fields(kwargs, kwargs["fields"])
+      _param_fields(kwargs, kwargs["fields"])
       del kwargs["fields"]
     elif "projection" in kwargs:
-      param_fields(kwargs, kwargs["projection"])
+      _param_fields(kwargs, kwargs["projection"])
 
     if "timeout" in kwargs:
       kwargs["no_cursor_timeout"] = not bool(kwargs["timeout"])

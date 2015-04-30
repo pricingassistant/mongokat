@@ -6,3 +6,7 @@ virtualenv:
 
 test:
 	py.test tests/ -v
+
+docs:
+	pip install pdoc==0.3.1
+	sh -c "PYTHONPATH=. pdoc mongokat --html --html-dir doc"

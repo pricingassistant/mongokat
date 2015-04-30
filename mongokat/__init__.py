@@ -1,4 +1,10 @@
-import _bson
+"""
+Welcome to the API documentation for MongoKat.
+
+Please see the [README on GitHub](https://github.com/pricingassistant/mongokat) for more info about MongoKat.
+"""
+
+from . import _bson
 import pymongo
 
 # This is the only monkey-patch needed to use our own bson.decode_all function,
