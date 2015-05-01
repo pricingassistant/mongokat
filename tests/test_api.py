@@ -3,6 +3,23 @@ import sample_models
 import datetime
 
 
+def test_collection_find(Sample):
+
+    Sample.insert_one({"name": "XXX", "url": "http://example.com"})
+
+    _id = Sample.find_one()["_id"]
+
+    # Don't include _id by default
+    assert dict(Sample.find_one({"name": "XXX"})) == {"name": "XXX", "url": "http://example.com", "_id": _id}
+    assert dict(Sample.find_one({"name": "XXX"}, fields=["name"])) == {"name": "XXX"}
+    assert dict(Sample.find_one({"name": "XXX"}, fields={"_id": 1, "name": 1})) == {"name": "XXX", "_id": _id}
+    assert dict(Sample.find_one({"name": "XXX"}, fields={"name": 1})) == {"name": "XXX"}
+    assert dict(Sample.find_one({"name": "XXX"}, fields={"name": True})) == {"name": "XXX"}
+    assert dict(Sample.find_one({"name": "XXX"}, fields=set(["name"]))) == {"name": "XXX"}
+    assert dict(Sample.find_one({"name": "XXX"}, fields=frozenset(["name"]))) == {"name": "XXX"}
+    assert dict(Sample.find_one({"name": "XXX"}, fields=("name", ))) == {"name": "XXX"}
+
+
 def test_document_ensure_fields(Sample):
 
     assert Sample.count() == 0

@@ -14,7 +14,7 @@ def _param_fields(kwargs, fields):
   """
   if fields is None:
     return
-  if type(fields) in [list, set, frozenset]:
+  if type(fields) in [list, set, frozenset, tuple]:
     fields = {x: True for x in fields}
   if type(fields) == dict:
     fields.setdefault("_id", False)
