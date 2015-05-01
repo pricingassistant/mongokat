@@ -319,7 +319,7 @@ class Collection(object):
 
         before_doc = None
         if self.has_trigger("after_save"):
-            before_doc = self.collection.find_one(filter, read_use="primary", projection=["_id"])
+            before_doc = self.find_one(filter, read_use="primary", projection=["_id"])
 
         ret = self.collection.replace_one(filter, replacement, **kwargs)
 
@@ -345,7 +345,7 @@ class Collection(object):
 
         before_doc = None
         if self.has_trigger("after_save"):
-            before_doc = self.collection.find_one(filter, read_use="primary", projection=["_id"])
+            before_doc = self.find_one(filter, read_use="primary", projection=["_id"])
 
         ret = self.collection.update_one(filter, update, **kwargs)
 
@@ -371,7 +371,7 @@ class Collection(object):
 
         before_ids = None
         if self.has_trigger("after_save"):
-            before_ids = self.collection.list_column(filter, read_use="primary")
+            before_ids = self.list_column(filter, read_use="primary")
 
         ret = self.collection.update_many(filter, update, **kwargs)
 
@@ -398,7 +398,7 @@ class Collection(object):
     def delete_many(self, filter, **kwargs):
         docs = []
         if self.has_trigger("before_delete") or self.has_trigger("after_delete"):
-            docs = self.find(filter, read_use="primary")
+            docs = list(self.find(filter, read_use="primary"))
             self.trigger("before_delete", documents=docs)
 
         ret = self.collection.delete_many(filter, **kwargs)
@@ -415,7 +415,7 @@ class Collection(object):
         if ret is None:
             return None
         doc = self(ret, fetched_fields=kwargs.get("projection"))
-        self.trigger("before_delete", documents=[doc])
+        self.trigger("after_delete", documents=[doc])
         return doc
 
     @find_method
@@ -510,6 +510,7 @@ class Collection(object):
             kwargs["w"] = 0 if not kwargs["safe"] else 1
             del kwargs["safe"]
         _id = self.collection.save(to_save, **kwargs)
+
         self.trigger("after_save", update={"$set": to_save}, ids=[_id])
         return _id
 
@@ -526,7 +527,7 @@ class Collection(object):
 
         before_ids = None
         if self.has_trigger("after_save"):
-            before_ids = self.collection.list_column(spec, read_use="primary")
+            before_ids = self.list_column(spec, read_use="primary")
 
         ret = self.collection.update(spec, document, **kwargs)
         self.trigger("after_save", ids=before_ids, update=document)
@@ -536,15 +537,16 @@ class Collection(object):
         docs = []
 
         if self.has_trigger("before_delete") or self.has_trigger("after_delete"):
+            limit = 0
             if spec_or_id is None:
                 filter = {}
             elif not isinstance(spec_or_id, collections.Mapping):
                 filter = {"_id": spec_or_id}
             else:
                 filter = spec_or_id
-                limit = 1 if kwargs.get("multi") is False else None
+                limit = 1 if kwargs.get("multi") is False else 0
 
-            docs = list(self.find(filter, read_use="primary").limit(limit))
+            docs = list(self.find(filter, read_use="primary", limit=limit))
             self.trigger("before_delete", documents=docs)
 
         ret = self.collection.remove(spec_or_id=spec_or_id, **kwargs)

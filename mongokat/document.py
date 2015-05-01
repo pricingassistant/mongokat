@@ -152,7 +152,7 @@ class Document(dict):
             if uuid:
                 self['_id'] = unicode("%s-%s" % (self.mongokat_collection.__class__.__name__, uuid4()))
 
-        return self.collection.save(self, **kwargs)
+        return self.mongokat_collection.save(self, **kwargs)
 
     def save_partial(self, data=None, allow_protected_fields=False, **kwargs):
         """ Saves just the currently set fields in the database. """

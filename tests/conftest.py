@@ -20,3 +20,9 @@ def db(request):
 def Sample(request, db):
     db.sample.drop()
     return sample_models.SampleCollection(collection=db.sample)
+
+
+@pytest.fixture(scope="function")
+def WithHooks(request, db):
+    db.sample.drop()
+    return sample_models.WithHooksCollection(collection=db.sample)
