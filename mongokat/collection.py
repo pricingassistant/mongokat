@@ -162,6 +162,9 @@ class Collection(object):
 
         read_preference = kwargs.get("read_preference") or getattr(self, "read_preference", None) or ReadPreference.PRIMARY
 
+        if "read_preference" in kwargs:
+            del kwargs["read_preference"]
+
         # Simplified tag usage
         if "read_use" in kwargs:
             if kwargs["read_use"] == "primary":
