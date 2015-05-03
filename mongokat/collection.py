@@ -1,11 +1,10 @@
 from .utils import dotdict, json_clone
 from bson import ObjectId
 from bson.codec_options import CodecOptions
-from pymongo import ReadPreference, WriteConcern, ReturnDocument
+from pymongo import ReadPreference, WriteConcern, ReturnDocument, read_preferences
 import collections
 from .document import Document
 from .exceptions import MultipleResultsFound, ImmutableDocumentError, ProtectedFieldsError
-from pymongo.collection import Collection as PymongoCollection
 
 
 def _param_fields(kwargs, fields):
@@ -174,7 +173,7 @@ class Collection(object):
             elif kwargs["read_use"] == "nearest":
                 read_preference = ReadPreference.NEAREST
             elif kwargs["read_use"]:
-                read_preference = ReadPreference.Secondary(tag_sets=[{"use": kwargs["read_use"]}])
+                read_preference = read_preferences.Secondary(tag_sets=[{"use": kwargs["read_use"]}])
             del kwargs["read_use"]
 
         write_concern = None
