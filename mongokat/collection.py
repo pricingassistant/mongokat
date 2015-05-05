@@ -513,7 +513,7 @@ class Collection(object):
             del kwargs["safe"]
         _id = self.collection.save(to_save, **kwargs)
 
-        self.trigger("after_save", update={"$set": to_save}, ids=[_id])
+        self.trigger("after_save", replacements=[to_save], ids=[_id])
         return _id
 
     def update(self, spec, document, **kwargs):
