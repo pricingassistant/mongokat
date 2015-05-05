@@ -183,7 +183,7 @@ class Document(dict):
 
         self._initialized_with_doc = False
 
-        self.collection.update_one({"_id": self["_id"]}, {"$set": data}, **kwargs)
+        self.mongokat_collection.update_one({"_id": self["_id"]}, {"$set": data}, **kwargs)
 
     def __generate_skeleton(self, doc, struct, path=""):
 
