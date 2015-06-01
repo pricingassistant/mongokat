@@ -159,7 +159,7 @@ class Collection(object):
         #     _fetched_fields = kwargs.get("projection")
         #     mongokat_collection = self
 
-        read_preference = kwargs.get("read_preference") or getattr(self, "read_preference", None) or ReadPreference.PRIMARY
+        read_preference = kwargs.get("read_preference") or getattr(self.collection, "read_preference", None) or ReadPreference.PRIMARY
 
         if "read_preference" in kwargs:
             del kwargs["read_preference"]
