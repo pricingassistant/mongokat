@@ -114,16 +114,13 @@ http://api.mongodb.org/python/current/installation.html#osx
                                                   "to take advantage of the "
                                                   "extension."))
 
-ext_modules = [Extension('bson._cbson',
-                         include_dirs=['bson'],
-                         sources=['bson/_cbsonmodule.c',
-                                  'bson/time64.c',
-                                  'bson/buffer.c',
-                                  'bson/encoding_helpers.c']),
-               Extension('pymongo._cmessage',
-                         include_dirs=['bson'],
-                         sources=['pymongo/_cmessagemodule.c',
-                                  'bson/buffer.c'])]
+ext_modules = [Extension('mongokat._cbson',
+                         include_dirs=['mongokat/_bson'],
+                         sources=['mongokat/_bson/_cbsonmodule.c',
+                                  'mongokat/_bson/time64.c',
+                                  'mongokat/_bson/buffer.c',
+                                  'mongokat/_bson/encoding_helpers.c'])
+               ]
 
 extra_opts = {}
 
