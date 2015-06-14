@@ -98,8 +98,5 @@ class dotdict(dict):
       self[key] = default
     return self[key]
 
-  __setattr__ = __setitem__  # pylint: disable=ox-shared-class-attribute
-  __getattr__ = __getitem__  # pylint: disable=ox-shared-class-attribute
-
   def __deepcopy__(self, memo):
     return copy.deepcopy(dict(self))
