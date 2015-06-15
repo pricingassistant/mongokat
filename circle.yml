@@ -9,6 +9,8 @@ test:
         parallel: true
     - py.test tests/ -v  --junitxml=$CIRCLE_TEST_REPORTS/junit/mongokat.xml --html=pytest-report.html --cov mongokat --cov-report html:
         parallel: true
+    - MONGOKAT_DISABLE_CBSON=1 py.test tests/ -v:
+        parallel: true
 
 machine:
   services:

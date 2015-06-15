@@ -144,7 +144,7 @@ void destroy_codec_options(codec_options_t* options) {
 }
 
 static PyObject* elements_to_dict(PyObject* self, const char* string,
-                                  unsigned max, const codec_options_t* options);
+                                  unsigned max, const codec_options_t* options, unsigned is_subdocument);
 
 static int _write_element_to_buffer(PyObject* self, buffer_t buffer,
                                     int type_byte, PyObject* value,
@@ -627,7 +627,7 @@ static int _write_element_to_buffer(PyObject* self, buffer_t buffer,
         long type = PyInt_AsLong(type_marker);
 #endif
         Py_DECREF(type_marker);
-        /* 
+        /*
          * Py(Long|Int)_AsLong returns -1 for error but -1 is a valid value
          * so we call PyErr_Occurred to differentiate.
          */
@@ -1066,8 +1066,8 @@ static int _write_element_to_buffer(PyObject* self, buffer_t buffer,
     } else if (PyObject_TypeCheck(value, state->REType)) {
         return _write_regex_to_buffer(buffer, type_byte, value);
     }
-    
-    /* 
+
+    /*
      * Try Mapping and UUID last since we have to import
      * them if we're in a sub-interpreter.
      */
@@ -1583,7 +1583,7 @@ static PyObject* get_value(PyObject* self, const char* buffer,
                 goto invalid;
             }
             value = elements_to_dict(self, buffer + *position + 4,
-                                     size - 5, options);
+                                     size - 5, options, 1);
             if (!value) {
                 goto invalid;
             }
@@ -1778,7 +1778,7 @@ static PyObject* get_value(PyObject* self, const char* buffer,
                     }
                     if ((PyDict_SetItemString(kwargs, "bytes", data)) == -1)
                         goto uuiderror;
-                
+
                 }
                 if ((type_to_create = _get_object(state->UUID, "uuid", "UUID"))) {
                     value = PyObject_Call(type_to_create, args, kwargs);
@@ -2090,7 +2090,7 @@ static PyObject* get_value(PyObject* self, const char* buffer,
                 goto invalid;
             }
             scope = elements_to_dict(self, buffer + *position + 4,
-                                     scope_size - 5, options);
+                                     scope_size - 5, options, 0);
             if (!scope) {
                 Py_DECREF(code);
                 goto invalid;
@@ -2240,9 +2240,29 @@ static PyObject* get_value(PyObject* self, const char* buffer,
 
 static PyObject* _elements_to_dict(PyObject* self, const char* string,
                                    unsigned max,
-                                   const codec_options_t* options) {
+                                   const codec_options_t* options, unsigned is_subdocument) {
     unsigned position = 0;
-    PyObject* dict = PyObject_CallObject(options->document_class, NULL);
+    PyObject* dict;
+    if (is_subdocument) {
+        dict = PyDict_New();
+    } else {
+        if (PyTuple_Check(options->document_class)) {
+
+            PyObject* doc_class;
+            PyObject* doc_class_kwargs;
+            PyObject* doc_class_args = PyTuple_New(0);
+
+            if (!PyArg_ParseTuple(
+                    options->document_class, "OO", &doc_class, &doc_class_kwargs)) {
+                return NULL;
+            }
+
+            dict = PyObject_Call(doc_class, doc_class_args, doc_class_kwargs);
+        } else {
+            dict = PyObject_CallObject(options->document_class, NULL);
+        }
+    }
+
     if (!dict) {
         return NULL;
     }
@@ -2284,11 +2304,11 @@ static PyObject* _elements_to_dict(PyObject* self, const char* string,
 
 static PyObject* elements_to_dict(PyObject* self, const char* string,
                                   unsigned max,
-                                  const codec_options_t* options) {
+                                  const codec_options_t* options, unsigned is_subdocument) {
     PyObject* result;
     if (Py_EnterRecursiveCall(" while decoding a BSON document"))
         return NULL;
-    result = _elements_to_dict(self, string, max, options);
+    result = _elements_to_dict(self, string, max, options, is_subdocument);
     Py_LeaveRecursiveCall();
     return result;
 }
@@ -2373,7 +2393,7 @@ static PyObject* _cbson_bson_to_dict(PyObject* self, PyObject* args) {
         return NULL;
     }
 
-    result = elements_to_dict(self, string + 4, (unsigned)size - 5, &options);
+    result = elements_to_dict(self, string + 4, (unsigned)size - 5, &options, 0);
     destroy_codec_options(&options);
     return result;
 }
@@ -2469,7 +2489,7 @@ static PyObject* _cbson_decode_all(PyObject* self, PyObject* args) {
             return NULL;
         }
 
-        dict = elements_to_dict(self, string + 4, (unsigned)size - 5, &options);
+        dict = elements_to_dict(self, string + 4, (unsigned)size - 5, &options, 0);
         if (!dict) {
             Py_DECREF(result);
             destroy_codec_options(&options);

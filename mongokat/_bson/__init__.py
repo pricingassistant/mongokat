@@ -304,7 +304,10 @@ def _element_to_dict(data, position, obj_end, opts):
 
 def _elements_to_dict(data, position, obj_end, opts, subdocument=None):
     """Decode a BSON document."""
-    result = opts.document_class(**getattr(opts, "document_class_kwargs", {})) if not subdocument else dict()
+    if type(opts.document_class) == tuple:
+        result = opts.document_class[0](**opts.document_class[1]) if not subdocument else dict()
+    else:
+        result = opts.document_class() if not subdocument else dict()
     end = obj_end - 1
     while position < end:
         (key, value, position) = _element_to_dict(data, position, obj_end, opts)
