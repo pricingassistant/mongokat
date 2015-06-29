@@ -12,3 +12,6 @@ doc:
 
 test_cext:
 	python setup.py build_ext && cp build/lib.macosx-10.10-intel-2.7/mongokat/_cbson.so mongokat/ && py.test tests -sv
+
+pypi:
+	python setup.py sdist upload -r pypi

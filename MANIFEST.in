@@ -1,0 +1,5 @@
+include *.md
+include requirements.txt
+recursive-exclude tests *
+recursive-include mongokat/_bson *.h
+recursive-include mongokat/_bson *.py

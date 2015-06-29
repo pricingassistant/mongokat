@@ -163,6 +163,12 @@ def get_version():
         return locals['VERSION']
     raise RuntimeError('No version info found.')
 
+
+try:
+    long_desc = open("docs/index.rst", "").read()
+except:
+    long_desc = ""
+
 setup(
     name="mongokat",
     include_package_data=True,
@@ -202,6 +208,6 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Utilities"
     ],
-    long_description=open("docs/index.rst").read(),
+    long_description=long_desc,
     **extra_opts
 )
