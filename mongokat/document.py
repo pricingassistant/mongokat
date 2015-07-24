@@ -88,6 +88,10 @@ class Document(dict):
         if "_id" not in self:
             raise Exception("Can't ensure_fields because _id is missing")
 
+        self.refetch_fields(missing_fields)
+
+    def refetch_fields(self, missing_fields):
+        """ Refetches a list of fields from the DB """
         db_fields = self.mongokat_collection.find_one({"_id": self["_id"]}, fields={k: 1 for k in missing_fields})
 
         self._fetched_fields += tuple(missing_fields)

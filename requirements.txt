@@ -1,5 +1,1 @@
-pymongo==3.0.2
-pytest==2.7.0
-pytest-circleci==0.0.2
-pytest-html==1.0
-pytest-cov==1.8.1
+pymongo==3.0.3

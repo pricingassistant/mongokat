@@ -5,6 +5,7 @@ general:
 
 test:
   override:
+    - pip install -r requirements-tests.txt
     - mkdir -p $CIRCLE_TEST_REPORTS/junit
     - py.test tests/ -v  --junitxml=$CIRCLE_TEST_REPORTS/junit/mongokat.xml --html=pytest-report.html --cov mongokat --cov-report html
     - MONGOKAT_DISABLE_CBSON=1 py.test tests/ -v

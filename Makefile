@@ -5,7 +5,8 @@ virtualenv:
 	echo "Now do: source venv/bin/activate"
 
 test:
-	py.test tests/ -v
+	sh -c "source venv/bin/activate && pip install -r requirements-tests.txt"
+	sh -c "source venv/bin/activate && py.test tests/ -v"
 
 doc:
 	sh -c "PYTHONPATH=. sphinx-autobuild docs/ docs/_build/html -z mongokat"
