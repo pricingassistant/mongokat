@@ -4,16 +4,7 @@ Welcome to the API documentation for MongoKat.
 Please see the [README on GitHub](https://github.com/pricingassistant/mongokat) for more info about MongoKat.
 """
 
-import os
-
-if os.getenv("MONGOKAT_DISABLE_CBSON"):
-  from . import _bson
-else:
-  try:
-    from . import _cbson as _bson
-  except Exception:
-    from . import _bson
-
+from . import _bson
 
 import pymongo
 

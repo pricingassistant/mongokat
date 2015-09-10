@@ -23,6 +23,7 @@ import re
 import struct
 import sys
 import uuid
+import os
 
 from codecs import (utf_8_decode as _utf_8_decode,
                     utf_8_encode as _utf_8_encode)
@@ -52,13 +53,13 @@ from bson.timestamp import Timestamp
 from bson.tz_util import utc
 
 
-# try:
-#     from bson import __cbson
-#     _USE_C = True
-# except ImportError:
-#     _USE_C = False
 _USE_C = False
-
+if not os.getenv("MONGOKAT_DISABLE_CBSON"):
+  try:
+    from mongokat import _cbson
+    _USE_C = True
+  except ImportError:
+    pass
 
 EPOCH_AWARE = datetime.datetime.fromtimestamp(0, utc)
 EPOCH_NAIVE = datetime.datetime.utcfromtimestamp(0)
