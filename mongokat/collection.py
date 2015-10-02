@@ -165,7 +165,7 @@ class Collection(object):
             del kwargs["read_preference"]
 
         # Simplified tag usage
-        if "read_use" in kwargs:
+        if kwargs.get("read_use"):
             if kwargs["read_use"] == "primary":
                 read_preference = ReadPreference.PRIMARY
             elif kwargs["read_use"] == "secondary":
