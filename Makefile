@@ -18,3 +18,15 @@ test_cext:
 
 pypi:
 	python setup.py sdist upload -r pypi
+
+docker_build:
+	docker build -t pricingassistant/mongokat .
+
+docker_ssh:
+	docker run -v `pwd`:/app:rw -w /app -t -i pricingassistant/mongokat bash
+
+start_mongod:
+	mongod --smallfiles --noprealloc --nojournal &
+
+docker_test: docker_build
+	docker run -v `pwd`:/app:rw -w /app -t -i pricingassistant/mongokat sh -c 'make start_mongod && py.test tests/ -v'

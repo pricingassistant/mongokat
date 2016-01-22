@@ -12,6 +12,8 @@ Tests
 
 You can just do `make test` to run the tests after setting up your environment (`make virtualenv` might help)
 
+Alternatively, you can use `make docker_test` to run tests inside a Docker image, without worrying about installing MongoDB on your machine.
+
 Contributing
 ============
 
