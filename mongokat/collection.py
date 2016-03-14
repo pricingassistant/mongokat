@@ -324,7 +324,8 @@ class Collection(object):
         before_doc = None
         if self.has_trigger("before_save") or self.has_trigger("after_save"):
             before_doc = self.find_one(filter, read_use="primary", projection=["_id"])
-            self.trigger("before_save", replacements=[replacement], ids=[before_doc["_id"]])
+            if before_doc:
+              self.trigger("before_save", replacements=[replacement], ids=[before_doc["_id"]])
 
         ret = self.collection.replace_one(filter, replacement, **kwargs)
 
@@ -351,7 +352,8 @@ class Collection(object):
         before_doc = None
         if self.has_trigger("before_save") or self.has_trigger("after_save"):
             before_doc = self.find_one(filter, read_use="primary", projection=["_id"])
-            self.trigger("before_save", update=update, ids=[before_doc["_id"]])
+            if before_doc:
+              self.trigger("before_save", update=update, ids=[before_doc["_id"]])
 
         ret = self.collection.update_one(filter, update, **kwargs)
 
@@ -378,7 +380,8 @@ class Collection(object):
         before_ids = None
         if self.has_trigger("before_save") or self.has_trigger("after_save"):
             before_ids = self.list_column(filter, read_use="primary")
-            self.trigger("before_save", update=update, ids=before_ids)
+            if before_ids:
+              self.trigger("before_save", update=update, ids=before_ids)
 
         ret = self.collection.update_many(filter, update, **kwargs)
 
@@ -457,7 +460,8 @@ class Collection(object):
 
         if self.has_trigger("before_save"):
             before_id = self.find_one(filter, read_use="primary", projection=["_id"])
-            self.trigger("before_save", update=update, ids=[before_id["_id"]])
+            if before_id:
+              self.trigger("before_save", update=update, ids=[before_id["_id"]])
 
         ret = self.collection.find_one_and_update(filter, update, **kwargs)
         if ret is None:
@@ -543,7 +547,8 @@ class Collection(object):
         before_ids = None
         if self.has_trigger("before_save") or self.has_trigger("after_save"):
             before_ids = self.list_column(spec, read_use="primary")
-            self.trigger("before_save", ids=before_ids, update=document)
+            if before_ids:
+              self.trigger("before_save", ids=before_ids, update=document)
 
         ret = self.collection.update(spec, document, **kwargs)
         self.trigger("after_save", ids=before_ids, update=document)
