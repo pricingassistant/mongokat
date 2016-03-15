@@ -21,6 +21,9 @@ class WithHooksDocument(Document):
     def after_delete(self, **kwargs):
         GLOBAL_HOOK_HISTORY.append(["after_delete", self["a"]])
 
+    def before_save(self, **kwargs):
+        GLOBAL_HOOK_HISTORY.append(["before_save", self["a"]])
+
     def after_save(self, **kwargs):
         GLOBAL_HOOK_HISTORY.append(["after_save", self["a"]])
 

@@ -322,8 +322,10 @@ class Collection(object):
             del kwargs["allow_protected_fields"]
 
         before_doc = None
-        if self.has_trigger("after_save"):
+        if self.has_trigger("before_save") or self.has_trigger("after_save"):
             before_doc = self.find_one(filter, read_use="primary", projection=["_id"])
+            if before_doc:
+                self.trigger("before_save", replacements=[replacement], ids=[before_doc["_id"]])
 
         ret = self.collection.replace_one(filter, replacement, **kwargs)
 
@@ -348,8 +350,10 @@ class Collection(object):
                 del kwargs["allow_protected_fields"]
 
         before_doc = None
-        if self.has_trigger("after_save"):
+        if self.has_trigger("before_save") or self.has_trigger("after_save"):
             before_doc = self.find_one(filter, read_use="primary", projection=["_id"])
+            if before_doc:
+                self.trigger("before_save", update=update, ids=[before_doc["_id"]])
 
         ret = self.collection.update_one(filter, update, **kwargs)
 
@@ -374,8 +378,10 @@ class Collection(object):
                 del kwargs["allow_protected_fields"]
 
         before_ids = None
-        if self.has_trigger("after_save"):
+        if self.has_trigger("before_save") or self.has_trigger("after_save"):
             before_ids = self.list_column(filter, read_use="primary")
+            if before_ids:
+                self.trigger("before_save", update=update, ids=before_ids)
 
         ret = self.collection.update_many(filter, update, **kwargs)
 
@@ -452,6 +458,11 @@ class Collection(object):
             else:
                 del kwargs["allow_protected_fields"]
 
+        if self.has_trigger("before_save"):
+            before_id = self.find_one(filter, read_use="primary", projection=["_id"])
+            if before_id:
+                self.trigger("before_save", update=update, ids=[before_id["_id"]])
+
         ret = self.collection.find_one_and_update(filter, update, **kwargs)
         if ret is None:
             return None
@@ -513,6 +524,10 @@ class Collection(object):
         if "safe" in kwargs:
             kwargs["w"] = 0 if not kwargs["safe"] else 1
             del kwargs["safe"]
+
+        if self.has_trigger("before_save") and "_id" in to_save:
+            self.trigger("before_save", replacements=[to_save], ids=[to_save["_id"]])
+
         _id = self.collection.save(to_save, **kwargs)
 
         self.trigger("after_save", replacements=[to_save], ids=[_id])
@@ -530,8 +545,10 @@ class Collection(object):
                 del kwargs["allow_protected_fields"]
 
         before_ids = None
-        if self.has_trigger("after_save"):
+        if self.has_trigger("before_save") or self.has_trigger("after_save"):
             before_ids = self.list_column(spec, read_use="primary")
+            if before_ids:
+                self.trigger("before_save", ids=before_ids, update=document)
 
         ret = self.collection.update(spec, document, **kwargs)
         self.trigger("after_save", ids=before_ids, update=document)
@@ -618,4 +635,3 @@ class Collection(object):
             forbidden_fields = set(data.keys()) & set(self.protected_fields)
             if len(forbidden_fields) > 0:
                 raise ProtectedFieldsError("cannot set those keys without allow_protected_fields : %s" % forbidden_fields)
-
