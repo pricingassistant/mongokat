@@ -105,13 +105,13 @@ class Document(dict):
     def unset_fields(self, fields):
         """ Removes this list of fields from both the local object and the DB. """
 
-        for f in fields:
-            if f in self:
-                del self[f]
-
         self.mongokat_collection.update_one({"_id": self["_id"]}, {"$unset": {
             f: 1 for f in fields
         }})
+
+        for f in fields:
+            if f in self:
+                del self[f]
 
     def reload(self):
         """
@@ -180,14 +180,14 @@ class Document(dict):
 
         apply_on = dotdict(self)
 
+        self._initialized_with_doc = False
+
+        self.mongokat_collection.update_one({"_id": self["_id"]}, {"$set": data}, **kwargs)
+
         for k, v in data.iteritems():
             apply_on[k] = v
 
         self.update(dict(apply_on))
-
-        self._initialized_with_doc = False
-
-        self.mongokat_collection.update_one({"_id": self["_id"]}, {"$set": data}, **kwargs)
 
     def __generate_skeleton(self, doc, struct, path=""):
 
