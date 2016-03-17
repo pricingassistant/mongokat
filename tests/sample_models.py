@@ -21,7 +21,12 @@ class WithHooksDocument(Document):
     def after_delete(self, **kwargs):
         GLOBAL_HOOK_HISTORY.append(["after_delete", self["a"]])
 
-    def before_save(self, **kwargs):
+    def before_save(self, update=None, **kwargs):
+        if update is not None:
+            if (update.get("$set") or update.get("$unset") or {}).get("raise_before_save"):
+                raise Exception()
+            if update.get("$set", {}).get("incr_before_save"):
+                update["$set"]["a"] += 1
         GLOBAL_HOOK_HISTORY.append(["before_save", self["a"]])
 
     def after_save(self, **kwargs):
