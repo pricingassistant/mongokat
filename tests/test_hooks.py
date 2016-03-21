@@ -30,6 +30,22 @@ def test_document_hook_save(WithHooks):
 
     assert_hooks([["before_save", 1], ["after_save", 2]])
 
+    try:
+        a1.save_partial({"a": 3, "raise_before_save": True})
+    except:
+        assert_hooks([])
+        assert a1["a"] == 2
+    else:
+        assert False
+
+    try:
+        a1.unset_fields(["a", "raise_before_save"])
+    except:
+        assert_hooks([])
+        assert a1.get("a") == 2
+    else:
+        assert False
+
     WithHooks.update({}, {"$set": {"a": 3}})
 
     assert_hooks([["before_save", 2], ["after_save", 3]])
@@ -53,6 +69,8 @@ def test_document_hook_save(WithHooks):
     WithHooks.replace_one({}, {"a": 9})
     assert_hooks([["before_save", 8], ["after_save", 9]])
 
+    WithHooks.update({}, {"$set": {"incr_before_save": True, "a": 10}})
+    assert_hooks([["before_save", 9], ["after_save", 11]])
 
 def test_document_hook_delete(WithHooks):
 
