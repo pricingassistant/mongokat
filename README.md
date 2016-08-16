@@ -1,14 +1,14 @@
 MongoKat
 ========
 
+[![Build Status](https://travis-ci.org/pricingassistant/mongokat.svg?branch=master)](https://travis-ci.org/pricingassistant/mongokat) [![MIT License](https://img.shields.io/github/license/pricingassistant/mongokat.svg)](LICENSE)
+
 MongoKat is a minimalist MongoDB ORM/ODM, inspired by the "hands off" API of [MongoKit](https://github.com/namlook/mongokit).
 
 See http://mongokat.readthedocs.org/ for documentation, code samples and API reference.
 
 Tests
 =====
-
-[![Circle CI](https://circleci.com/gh/pricingassistant/mongokat.svg?style=svg)](https://circleci.com/gh/pricingassistant/mongokat)
 
 You can just do `make test` to run the tests after setting up your environment (`make virtualenv` might help)
 
