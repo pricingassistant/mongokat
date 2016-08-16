@@ -1,5 +1,5 @@
 import pytest
-import sample_models
+from . import sample_models
 import datetime
 
 
@@ -150,7 +150,7 @@ def test_document_common_methods(Sample):
 
   # We should be able to fetch & save partial objects.
   orm_object = Sample.find_by_id(db_object["_id"], fields=["url"])
-  assert dict(orm_object).keys() == ["url"]
+  assert list(dict(orm_object).keys()) == ["url"]
   assert dict(orm_object)["url"] == "http://example.com"
 
   # If we save() that, it will create a new object because we lack an _id :(

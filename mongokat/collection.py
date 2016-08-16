@@ -233,7 +233,7 @@ class Collection(object):
 
         # Optimized path when only fetching the _id field.
         # Be mindful this might not filter missing documents that may not have been returned, had we done the query.
-        if projection is not None and projection.keys() == ["_id"]:
+        if projection is not None and list(projection.keys()) == ["_id"]:
             return [self({"_id": x}, fetched_fields={"_id": True}) for x in id_list]
         else:
             return self.find({"_id": {"$in": id_list}}, projection=projection, **kwargs)
@@ -268,7 +268,7 @@ class Collection(object):
         max = self.count(**kwargs)
         if max:
             num = random.randint(0, max - 1)
-            return self.find(**kwargs).skip(num).next()
+            return next(self.find(**kwargs).skip(num))
 
     def one(self, *args, **kwargs):
         bson_obj = self.find(*args, **kwargs)
@@ -276,7 +276,7 @@ class Collection(object):
         if count > 1:
             raise MultipleResultsFound("%s results found" % count)
         elif count == 1:
-            return bson_obj.next()
+            return next(bson_obj)
 
     #
     #
@@ -627,7 +627,7 @@ class Collection(object):
             raise MultipleResultsFound("%s results found" % count)
         elif count == 1:
             # return self(bson_obj.next(), fetched_fields=kwargs.get("projection"))
-            return bson_obj.next()
+            return next(bson_obj)
 
     def _check_protected_fields(self, data):
 

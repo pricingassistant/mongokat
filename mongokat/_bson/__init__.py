@@ -641,7 +641,7 @@ _MARKERS = {
 }
 
 if not PY3:
-    _ENCODERS[long] = _encode_long
+    _ENCODERS[int] = _encode_long
 
 
 def _name_value_to_bson(name, value, check_keys, opts):

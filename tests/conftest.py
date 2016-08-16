@@ -3,7 +3,7 @@ from pymongo import MongoClient
 
 import sys
 sys.path.append(".")
-import sample_models
+from . import sample_models
 
 
 @pytest.fixture(scope="function")

@@ -38,6 +38,7 @@ from mongokat import Document as MongoKatDocument
 from mongokat import Collection as MongoKatCollection
 from mongokat.exceptions import MultipleResultsFound
 from pymongo.errors import OperationFailure
+import collections
 
 SchemaDocument = MongoKatCollection
 Document = MongoKatCollection
@@ -82,31 +83,31 @@ class TestMongokitApi:
         class MyDoc(Document):
             structure = {
                 "bla":{
-                    "foo":unicode,
+                    "foo":str,
                     "bar":int,
                 },
                 "spam":[],
             }
         self.connection.register([MyDoc])
         mydoc = self.col.MyDoc()
-        mydoc["bla"]["foo"] = u"bar"
+        mydoc["bla"]["foo"] = "bar"
         mydoc["bla"]["bar"] = 42
         mydoc.save()
         assert isinstance(mydoc['_id'], ObjectId)
 
         saved_doc = self.col.find_one({"bla.bar":42})
-        for key, value in mydoc.iteritems():
+        for key, value in mydoc.items():
             assert saved_doc[key] == value
 
         mydoc = self.col.MyDoc()
-        mydoc["bla"]["foo"] = u"bar"
+        mydoc["bla"]["foo"] = "bar"
         mydoc["bla"]["bar"] = 43
         mydoc.save(uuid=True)
-        assert isinstance(mydoc['_id'], unicode)
+        assert isinstance(mydoc['_id'], str)
         assert mydoc['_id'].startswith("MyDoc"), mydoc['_id']
 
         saved_doc = self.col.find_one({"bla.bar":43})
-        for key, value in mydoc.iteritems():
+        for key, value in mydoc.items():
             assert saved_doc[key] == value
 
     def test_save_without_collection(self):
@@ -141,7 +142,7 @@ class TestMongokitApi:
         class A(SchemaDocument):
             structure = {
                 "a":{"foo":int},
-                "bar":unicode
+                "bar":str
             }
         self.connection.register([A])
         a = self.col.A(gen_skel=False)
@@ -153,7 +154,7 @@ class TestMongokitApi:
         class A(SchemaDocument):
             structure = {
                 "a":{"foo":[int]},
-                "bar":{unicode:{"egg":int}}
+                "bar":{str:{"egg":int}}
             }
         self.connection.register([A])
         a = self.col.A(gen_skel=False)
@@ -164,8 +165,8 @@ class TestMongokitApi:
     def test_generate_skeleton3(self):
         class A(SchemaDocument):
             structure = {
-                "a":{"foo":[int], "spam":{"bla":unicode}},
-                "bar":{unicode:{"egg":int}}
+                "a":{"foo":[int], "spam":{"bla":str}},
+                "bar":{str:{"egg":int}}
             }
         self.connection.register([A])
         a = self.col.A(gen_skel=False)
@@ -185,7 +186,7 @@ class TestMongokitApi:
         mydoc.save()
         fetched_doc = self.col.MyDoc.get_from_id("bar")
         assert mydoc == fetched_doc
-        assert callable(fetched_doc) is False
+        assert isinstance(fetched_doc, collections.Callable) is False
         assert isinstance(fetched_doc, self.col.MyDoc.document_class)
         raw_doc = self.col.find_one({"_id": 'bar'})
         assert mydoc == raw_doc
@@ -220,29 +221,29 @@ class TestMongokitApi:
         if "allPlans" in exp:
 
             allPlans = exp['allPlans']
-            allPlans[0].pop(u'indexBounds', None)
-            allPlans[0].pop(u'indexOnly', None)
-            allPlans[0].pop(u'nChunkSkips', None)
-            allPlans[0].pop(u'scanAndOrder', None)
-            allPlans[0].pop(u'isMultiKey', None)
+            allPlans[0].pop('indexBounds', None)
+            allPlans[0].pop('indexOnly', None)
+            allPlans[0].pop('nChunkSkips', None)
+            allPlans[0].pop('scanAndOrder', None)
+            allPlans[0].pop('isMultiKey', None)
 
-            allPlans[0].pop(u'bar', None)
-            allPlans[0].pop(u'foo', None)
+            allPlans[0].pop('bar', None)
+            allPlans[0].pop('foo', None)
 
             self.assertEqual(
                 allPlans,
                 [
                     {
-                        u'cursor': u'BasicCursor',
-                        u'nscannedObjects': 10,
-                        u'nscanned': 10,
-                        u'n': 10,
+                        'cursor': 'BasicCursor',
+                        'nscannedObjects': 10,
+                        'nscanned': 10,
+                        'n': 10,
                     },
                 ],
             )
 
-        next_doc = self.col.MyDoc.find().sort('foo',1).next()
-        assert callable(next_doc) is False
+        next_doc = next(self.col.MyDoc.find().sort('foo',1))
+        assert isinstance(next_doc, collections.Callable) is False
         assert isinstance(next_doc, self.col.MyDoc.document_class)
         assert next_doc['foo'] == 0
         assert len(list(self.col.MyDoc.find().skip(3))) == 7, len(list(self.col.MyDoc.find().skip(3)))
@@ -267,7 +268,7 @@ class TestMongokitApi:
             mydoc["foo"] = i
             mydoc.save()
         one_doc = self.col.MyDoc.find_one()
-        assert callable(one_doc) is False
+        assert isinstance(one_doc, collections.Callable) is False
         raw_mydoc = self.col.find_one()
         assert one_doc == raw_mydoc
 
@@ -291,7 +292,7 @@ class TestMongokitApi:
 
         mydoc = self.col.MyDoc.find_and_modify(query={"baz": 1}, update={"$set": {"baz": 2}}, new=True)
         assert isinstance(mydoc, self.col.MyDoc.document_class)
-        self.assertEquals(2, mydoc["baz"])
+        self.assertEqual(2, mydoc["baz"])
 
     def test_one(self):
         class MyDoc(Document):
@@ -304,7 +305,7 @@ class TestMongokitApi:
         mydoc.save()
         # raw_mydoc = self.col.one()
         mydoc = self.col.MyDoc.one()
-        assert callable(mydoc) is False
+        assert isinstance(mydoc, collections.Callable) is False
         # assert mydoc == raw_mydoc
         assert mydoc["foo"] == 0
         assert isinstance(mydoc, self.col.MyDoc.document_class)
@@ -329,7 +330,7 @@ class TestMongokitApi:
             mydoc.save()
         # raw_mydoc = self.col.find_random()
         mydoc = self.col.MyDoc.find_random()
-        assert callable(mydoc) is False
+        assert isinstance(mydoc, collections.Callable) is False
         assert isinstance(mydoc, self.col.MyDoc.document_class)
         # assert mydoc != raw_mydoc, (mydoc, raw_mydoc)
 
@@ -365,7 +366,7 @@ class TestMongokitApi:
         index = 0
         for doc in self.col.DocA.fetch():
             assert doc == {'_id':doc['_id'], 'doc_a':{'foo':index}}, doc
-            assert callable(doc) is False
+            assert isinstance(doc, collections.Callable) is False
             index += 1
 
         #assert DocA.fetch().limit(12).count() == 10, DocA.fetch().limit(1).count() # ???
@@ -374,12 +375,12 @@ class TestMongokitApi:
     def test_fetch_with_query(self):
         class DocA(Document):
             structure = {
-                "bar":unicode,
+                "bar":str,
                 "doc_a":{'foo':int},
             }
         class DocB(Document):
             structure = {
-                "bar":unicode,
+                "bar":str,
                 "doc_b":{"bar":int},
             }
         self.connection.register([DocA, DocB])
@@ -388,18 +389,18 @@ class TestMongokitApi:
         for i in range(10):
             mydoc = self.col.DocA()
             if i % 2 == 0:
-                mydoc['bar'] = u"spam"
+                mydoc['bar'] = "spam"
             else:
-                mydoc['bar'] = u"egg"
+                mydoc['bar'] = "egg"
             mydoc['doc_a']["foo"] = i
             mydoc.save()
         # creating DocB
         for i in range(5):
             mydoc = self.col.DocB()
             if i % 2 == 0:
-                mydoc['bar'] = u"spam"
+                mydoc['bar'] = "spam"
             else:
-                mydoc['bar'] = u"egg"
+                mydoc['bar'] = "egg"
             mydoc['doc_b']["bar"] = i
             mydoc.save()
 
@@ -496,7 +497,7 @@ class TestMongokitApi:
         # boostraping
         for i in range(10):
             mydoc = mongokit.MyDoc()
-            mydoc['_id'] = unicode(i)
+            mydoc['_id'] = str(i)
             mydoc['foo'] = i
             mydoc.save()
 
@@ -534,7 +535,7 @@ class TestMongokitApi:
 
         # creating DocA
         mydoc = self.col.DocA()
-        mydoc['doc_a']["foo"] = u'bar'
+        mydoc['doc_a']["foo"] = 'bar'
         assertion = False
         try:
             mydoc.save()
@@ -547,7 +548,7 @@ class TestMongokitApi:
 
         # creating DocA
         mydoc = self.col.DocA()
-        mydoc['doc_a']["foo"] = u'foo'
+        mydoc['doc_a']["foo"] = 'foo'
         self.assertRaises(SchemaTypeError, mydoc.save, validate=True)
         mydoc.save()
 
@@ -632,16 +633,16 @@ class TestMongokitApi:
     def test_get_size(self):
         class MyDoc(Document):
             structure = {
-                "doc":{"foo":int, "bla":unicode},
+                "doc":{"foo":int, "bla":str},
             }
         self.connection.register([MyDoc])
 
         mydoc = self.col.MyDoc()
         mydoc['doc']['foo'] = 3
-        mydoc['doc']['bla'] = u'bla bla'
+        mydoc['doc']['bla'] = 'bla bla'
         assert mydoc.get_size() == 41, mydoc.get_size()
 
-        mydoc['doc']['bla'] = u'bla bla'+'b'*12
+        mydoc['doc']['bla'] = 'bla bla'+'b'*12
         assert mydoc.get_size() == 41+12
 
         # validate() disabled for now!
@@ -649,7 +650,7 @@ class TestMongokitApi:
 
         mydoc.validate()
 
-        mydoc['doc']['bla'] = u'b'*40000000
+        mydoc['doc']['bla'] = 'b'*40000000
         self.assertRaises(MaxDocumentSizeError, mydoc.validate)
 
     def test_get_with_no_wrap(self):
@@ -657,7 +658,7 @@ class TestMongokitApi:
             structure = {"foo":int}
         self.connection.register([MyDoc])
 
-        for i in xrange(20):
+        for i in range(20):
             mydoc = self.col.MyDoc()
             mydoc['foo'] = i
             mydoc.save()
@@ -678,10 +679,10 @@ class TestMongokitApi:
 
         assert isinstance(wrapped_mydocs[0], self.col.MyDoc.document_class)
         assert not isinstance(mydocs[0], MyDoc), type(mydocs[0])
-        assert [i['foo'] for i in mydocs] == list(reversed(range(20))), [i['foo'] for i in mydocs]
+        assert [i['foo'] for i in mydocs] == list(reversed(list(range(20)))), [i['foo'] for i in mydocs]
         assert mydocs[0]['foo'] == 19, mydocs[0]['foo']
 
-        assert not isinstance(self.col.find().sort('foo', -1).next(), self.col.MyDoc.document_class)
+        assert not isinstance(next(self.col.find().sort('foo', -1)), self.col.MyDoc.document_class)
 
     def test_get_dbref(self):
         return pytest.skip("no dbref")
@@ -690,28 +691,28 @@ class TestMongokitApi:
         self.connection.register([MyDoc])
 
         mydoc = self.col.MyDoc()
-        mydoc['_id'] = u'1'
+        mydoc['_id'] = '1'
         mydoc['foo'] = 1
         mydoc.save()
 
         mydoc = self.connection.test.othercol.MyDoc()
-        mydoc['_id'] = u'2'
+        mydoc['_id'] = '2'
         mydoc['foo'] = 2
         mydoc.save()
 
         mydoc = self.connection.othertest.mongokit.MyDoc()
-        mydoc['_id'] = u'3'
+        mydoc['_id'] = '3'
         mydoc['foo'] = 3
         mydoc.save()
 
         mydoc = self.col.MyDoc.find_one({'foo':1})
-        assert mydoc.get_dbref(), DBRef(u'mongokit', u'1', u'test')
+        assert mydoc.get_dbref(), DBRef('mongokit', '1', 'test')
 
         mydoc = self.connection.test.othercol.MyDoc.find_one({'foo':2})
-        assert mydoc.get_dbref() == DBRef(u'othercol', u'2', u'test')
+        assert mydoc.get_dbref() == DBRef('othercol', '2', 'test')
 
         mydoc = self.connection.othertest.mongokit.MyDoc.find_one({'foo':3})
-        assert mydoc.get_dbref() == DBRef(u'mongokit', u'3', u'othertest')
+        assert mydoc.get_dbref() == DBRef('mongokit', '3', 'othertest')
 
     def test__hash__(self):
         class MyDoc(Document):
@@ -731,7 +732,7 @@ class TestMongokitApi:
         self.connection.register([MyDoc])
         mydoc = self.col.MyDoc()
         self.assertRaises(TypeError, mydoc)
-        assert callable(mydoc) is False
+        assert isinstance(mydoc, collections.Callable) is False
 
 
     def test_bad_call(self):
@@ -751,14 +752,14 @@ class TestMongokitApi:
             use_dot_notation = True
             structure = {
                 "foo":int,
-                "bar":{"egg":unicode},
+                "bar":{"egg":str},
                 "toto":{"spam":{"bla":int}}
             }
 
         self.connection.register([MyDoc])
         mydoc = self.col.MyDoc()
         mydoc.foo = 3
-        mydoc.bar.egg = u'bla'
+        mydoc.bar.egg = 'bla'
         mydoc.toto.spam.bla = 7
         mydoc.save()
         fetched_doc = self.col.MyDoc.find_one()
@@ -771,12 +772,12 @@ class TestMongokitApi:
         return pytest.skip("no validation")
         class Doc(Document):
            structure = {
-               "foo": unicode,
+               "foo": str,
            }
         self.connection.register([Doc])
 
         doc = self.col.Doc()
-        doc['foo'] = u"bla"
+        doc['foo'] = "bla"
         doc.save()
         doc['bar'] = 2
         self.assertRaises(StructureError, doc.validate)
@@ -784,20 +785,20 @@ class TestMongokitApi:
     def test_distinct(self):
         class Doc(Document):
             structure = {
-                "foo": unicode,
+                "foo": str,
                 "bla": int
             }
         self.connection.register([Doc])
 
         for i in range(15):
             if i % 2 == 0:
-                foo = u"blo"
+                foo = "blo"
             else:
-                foo = u"bla"
+                foo = "bla"
             doc = self.col.Doc(doc={'foo':foo, 'bla':i})
             doc.save()
         assert self.col.find().distinct('foo') == ['blo', 'bla']
-        assert self.col.find().distinct('bla') == range(15)
+        assert self.col.find().distinct('bla') == list(range(15))
 
     def test_explain(self):
         return pytest.skip()
@@ -826,48 +827,48 @@ class TestMongokitApi:
         return pytest.skip("No operators")
         class Doc(Document):
             structure = {
-                "foo":OR(int, long),
-                "bar":unicode,
+                "foo":OR(int, int),
+                "bar":str,
             }
         self.connection.register([Doc])
         doc = self.col.Doc()
-        doc['foo'] = 12L
+        doc['foo'] = 12
         doc.save()
         fetch_doc = self.col.Doc.find_one()
-        fetch_doc['bar'] = u'egg'
+        fetch_doc['bar'] = 'egg'
         fetch_doc.save()
 
     def test_skip_validation_with_required_field(self):
         return pytest.skip("no validation")
         class Task(Document):
             structure = {
-                'extra' : unicode,
+                'extra' : str,
             }
             required_fields = ['extra']
             skip_validation = True
         self.connection.register([Task])
         task = self.col.Task()
-        task['extra'] = u'foo'
+        task['extra'] = 'foo'
         task.validate()
 
     def test_passing_collection_in_argument(self):
         return pytest.skip("nope")
         class MyDoc(Document):
             structure = {
-                'foo':unicode
+                'foo':str
             }
         doc = MyDoc(collection=self.col)
-        doc['foo'] = u'bla'
+        doc['foo'] = 'bla'
         doc.save()
 
     def test_reload(self):
         class MyDoc(Document):
             structure = {
                 'foo':{
-                    'bar':unicode,
+                    'bar':str,
                     'eggs':{'spam':int},
                 },
-                'bla':unicode
+                'bla':str
             }
         self.connection.register([MyDoc])
 
@@ -875,28 +876,28 @@ class TestMongokitApi:
         self.assertRaises(KeyError, doc.reload)
         doc['_id'] = 3
         # doc['foo'] = {'eggs': {}}
-        doc['foo']['bar'] = u'mybar'
+        doc['foo']['bar'] = 'mybar'
         doc['foo']['eggs']['spam'] = 4
-        doc['bla'] = u'ble'
+        doc['bla'] = 'ble'
         self.assertRaises(OperationFailure, doc.reload)
         doc.save()
 
-        assert doc == {'_id': 3, 'foo': {u'eggs': {u'spam': 4}, u'bar': u'mybar'}, 'bla': u'ble'}
+        assert doc == {'_id': 3, 'foo': {'eggs': {'spam': 4}, 'bar': 'mybar'}, 'bla': 'ble'}
 
-        doc['bla'] = u'bli'
+        doc['bla'] = 'bli'
 
         self.col.update({'_id':doc['_id']}, {'$set':{'foo.eggs.spam':2}})
 
-        print "******" * 20
-        print
+        print("******" * 20)
+        print()
 
         self.col.MyDoc.gen_skel = False
         doc2 = self.col.MyDoc.find_one({'_id':doc['_id']})
-        print doc2
-        assert doc2 == {'_id': 3, 'foo': {u'eggs': {u'spam': 2}, u'bar': u'mybar'}, 'bla': u'ble'}
+        print(doc2)
+        assert doc2 == {'_id': 3, 'foo': {'eggs': {'spam': 2}, 'bar': 'mybar'}, 'bla': 'ble'}
 
         doc.reload()
-        assert doc == {'_id': 3, 'foo': {u'eggs': {u'spam': 2}, u'bar': u'mybar'}, 'bla': u'ble'}
+        assert doc == {'_id': 3, 'foo': {'eggs': {'spam': 2}, 'bar': 'mybar'}, 'bla': 'ble'}
 
     def test_rewind(self):
         class MyDoc(Document):
@@ -914,7 +915,7 @@ class TestMongokitApi:
         for i in cur:
             assert isinstance(i, self.col.MyDoc.document_class), type(MyDoc)
         try:
-            cur.next()
+            next(cur)
         except StopIteration:
             pass
         cur.rewind()
@@ -981,7 +982,7 @@ class TestMongokitApi:
             }
         try:
             doc = self.connection.MyDoc()
-        except AttributeError, e:
+        except AttributeError as e:
             failed = True
             self.assertEqual(str(e), 'MyDoc: __collection__ attribute not '
               'found. You cannot specify the `__database__` attribute '
@@ -1044,10 +1045,10 @@ class TestMongokitApi:
         @self.connection.register
         class DocA(Root):
            __collection__ = "doca"
-           structure = {'title':unicode}
+           structure = {'title':str}
 
         doc = self.connection.DocA()
-        doc['title'] = u'foo'
+        doc['title'] = 'foo'
         doc.save()
 
         self.assertEqual(self.connection.test.doca.find_one(), doc)
@@ -1059,14 +1060,14 @@ class TestMongokitApi:
         class DocA(Document):
            __database__ = 'test'
            __collection__ = "doca"
-           structure = {'title':unicode}
+           structure = {'title':str}
 
         doc = self.connection.DocA()
         doc['title'] = 'foo'
         failed = False
         try:
             doc.save()
-        except SchemaTypeError, e:
+        except SchemaTypeError as e:
             self.assertEqual(str(e), "title must be an instance of unicode not str")
             failed = True
         self.assertEqual(failed, True)
@@ -1079,11 +1080,11 @@ class TestMongokitApi:
            structure = {'title':str}
 
         doc = self.connection.DocA()
-        doc['title'] = u'foo'
+        doc['title'] = 'foo'
         failed = False
         try:
             doc.save()
-        except SchemaTypeError, e:
+        except SchemaTypeError as e:
             self.assertEqual(str(e), "title must be an instance of str not unicode")
             failed = True
         self.assertEqual(failed, True)
@@ -1093,10 +1094,10 @@ class TestMongokitApi:
         class DocA(Document):
            __database__ = 'test'
            __collection__ = "doca"
-           structure = {'title':basestring}
+           structure = {'title':str}
 
         doc = self.connection.DocA()
-        doc['title'] = u'foo'
+        doc['title'] = 'foo'
         doc.save()
         doc['title'] = 'foo'
         doc.save()
@@ -1116,7 +1117,7 @@ class TestMongokitApi:
         failed = False
         try:
             doc.save()
-        except SchemaTypeError, e:
+        except SchemaTypeError as e:
             self.assertEqual(str(e), "foo must be an instance of int not float")
             failed = True
         self.assertEqual(failed, True)
@@ -1133,7 +1134,7 @@ class TestMongokitApi:
         failed = False
         try:
             doc.save()
-        except SchemaTypeError, e:
+        except SchemaTypeError as e:
             self.assertEqual(str(e), "foo must be an instance of float not int")
             failed = True
         self.assertEqual(failed, True)

@@ -4,6 +4,7 @@ from .utils import dotdict
 from uuid import UUID, uuid4
 from bson import BSON
 from pymongo.errors import OperationFailure
+import collections
 
 
 def _flatten_fetched_fields(fields_arg):
@@ -15,7 +16,7 @@ def _flatten_fetched_fields(fields_arg):
     if fields_arg is None:
         return None
     if isinstance(fields_arg, dict):
-        return tuple(sorted([k for k in fields_arg.keys() if fields_arg[k]]))
+        return tuple(sorted([k for k in list(fields_arg.keys()) if fields_arg[k]]))
     else:
         return tuple(sorted(fields_arg))
 
@@ -41,7 +42,7 @@ class Document(dict):
             self.gen_skel = gen_skel
 
         if doc is not None:
-            for k, v in doc.iteritems():
+            for k, v in doc.items():
                 self[k] = v
 
         if not self._fetched_fields:
@@ -99,7 +100,7 @@ class Document(dict):
         if not db_fields:
             return
 
-        for k, v in db_fields.iteritems():
+        for k, v in db_fields.items():
             self[k] = v
 
     def unset_fields(self, fields):
@@ -154,7 +155,7 @@ class Document(dict):
 
         if '_id' not in self:
             if uuid:
-                self['_id'] = unicode("%s-%s" % (self.mongokat_collection.__class__.__name__, uuid4()))
+                self['_id'] = str("%s-%s" % (self.mongokat_collection.__class__.__name__, uuid4()))
 
         return self.mongokat_collection.save(self, **kwargs)
 
@@ -184,7 +185,7 @@ class Document(dict):
 
         self.mongokat_collection.update_one({"_id": self["_id"]}, {"$set": data}, **kwargs)
 
-        for k, v in data.iteritems():
+        for k, v in data.items():
             apply_on[k] = v
 
         self.update(dict(apply_on))
@@ -202,7 +203,7 @@ class Document(dict):
             #
             if type(key) is not type and key not in doc:
                 if isinstance(struct[key], dict):
-                    if callable(struct[key]):
+                    if isinstance(struct[key], collections.Callable):
                         doc[key] = struct[key]()
                     else:
                         doc[key] = type(struct[key])()
