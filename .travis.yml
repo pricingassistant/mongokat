@@ -1,0 +1,22 @@
+sudo: required
+
+services:
+  - docker
+
+# TODO different MongoDB versions?
+# TODO PyPy
+env:
+  - PYTHON_BIN=python MONGOKAT_DISABLE_CBSON=0
+  - PYTHON_BIN=python3 MONGOKAT_DISABLE_CBSON=0
+  - PYTHON_BIN=python MONGOKAT_DISABLE_CBSON=1
+  - PYTHON_BIN=python3 MONGOKAT_DISABLE_CBSON=1
+
+before_install:
+  - docker ps
+  - docker info
+  - docker version
+  - make docker_build
+
+# TODO: coveralls?
+script:
+    - docker run -e MONGOKAT_DISABLE_CBSON -i -t -v `pwd`:/app:rw -w /app mrq_local $PYTHON_BIN -m pytest tests/ -v --junitxml=pytest-report.xml --cov mrq --cov-report term

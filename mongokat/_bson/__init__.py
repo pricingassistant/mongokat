@@ -54,7 +54,7 @@ from bson.tz_util import utc
 
 
 _USE_C = False
-if not os.getenv("MONGOKAT_DISABLE_CBSON"):
+if os.getenv("MONGOKAT_DISABLE_CBSON") != "1":
   try:
     from mongokat import _cbson
     _USE_C = True
@@ -641,7 +641,7 @@ _MARKERS = {
 }
 
 if not PY3:
-    _ENCODERS[int] = _encode_long
+    _ENCODERS[long] = _encode_long
 
 
 def _name_value_to_bson(name, value, check_keys, opts):

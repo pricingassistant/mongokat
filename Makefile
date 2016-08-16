@@ -22,11 +22,14 @@ pypi:
 docker_build:
 	docker build -t pricingassistant/mongokat .
 
-docker_ssh:
+docker_shell:
 	docker run -v `pwd`:/app:rw -w /app -t -i pricingassistant/mongokat bash
 
 start_mongod:
 	mongod --smallfiles --noprealloc --nojournal &
 
 docker_test: docker_build
-	docker run -v `pwd`:/app:rw -w /app -t -i pricingassistant/mongokat sh -c 'make start_mongod && py.test tests/ -v'
+	docker run -v `pwd`:/app:rw -w /app -t -i pricingassistant/mongokat sh -c 'make start_mongod && python -m py.test tests/ -v'
+	docker run -v `pwd`:/app:rw -w /app -t -i pricingassistant/mongokat sh -c 'make start_mongod && python3 -m py.test tests/ -v'
+	docker run -v `pwd`:/app:rw -w /app -t -i pricingassistant/mongokat sh -c 'make start_mongod && MONGOKAT_DISABLE_CBSON=1 python -m py.test tests/ -v'
+	docker run -v `pwd`:/app:rw -w /app -t -i pricingassistant/mongokat sh -c 'make start_mongod && MONGOKAT_DISABLE_CBSON=1 python3 -m py.test tests/ -v'
