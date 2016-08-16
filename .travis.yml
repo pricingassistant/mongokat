@@ -19,4 +19,4 @@ before_install:
 
 # TODO: coveralls?
 script:
-    - docker run -e MONGOKAT_DISABLE_CBSON -i -t -v `pwd`:/app:rw -w /app mrq_local $PYTHON_BIN -m pytest tests/ -v --junitxml=pytest-report.xml --cov mrq --cov-report term
+    - docker run -e MONGOKAT_DISABLE_CBSON -i -t -v `pwd`:/app:rw -w /app pricingassistant/mongokat $PYTHON_BIN -m pytest tests/ -v --junitxml=pytest-report.xml --cov mrq --cov-report term
