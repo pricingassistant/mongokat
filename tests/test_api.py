@@ -1,6 +1,7 @@
 import pytest
 from . import sample_models
 import datetime
+import base64
 
 
 def test_collection_find(Sample):
@@ -18,6 +19,17 @@ def test_collection_find(Sample):
     assert dict(Sample.find_one({"name": "XXX"}, fields=set(["name"]))) == {"name": "XXX"}
     assert dict(Sample.find_one({"name": "XXX"}, fields=frozenset(["name"]))) == {"name": "XXX"}
     assert dict(Sample.find_one({"name": "XXX"}, fields=("name", ))) == {"name": "XXX"}
+
+
+def test_b64ids(Sample):
+
+    Sample.insert_one({"name": "XXX", "url": "http://example.com"})
+
+    s = Sample.find_one()
+
+    assert s.b64id == base64.b64encode(s["_id"].binary)
+    assert Sample.find_by_b64id(s.b64id)["_id"] == s["_id"]
+    assert list(Sample.find_by_b64ids([s.b64id]))[0]["_id"] == s["_id"]
 
 
 def test_document_no_shared_fields(Sample):

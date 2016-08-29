@@ -3,6 +3,7 @@ from bson import ObjectId
 from bson.codec_options import CodecOptions
 from pymongo import ReadPreference, WriteConcern, ReturnDocument, read_preferences
 import collections
+import base64
 from .document import Document
 from .exceptions import MultipleResultsFound, ImmutableDocumentError, ProtectedFieldsError
 
@@ -237,6 +238,22 @@ class Collection(object):
             return [self({"_id": x}, fetched_fields={"_id": True}) for x in id_list]
         else:
             return self.find({"_id": {"$in": id_list}}, projection=projection, **kwargs)
+
+    @find_method
+    def find_by_b64id(self, _id, **kwargs):
+        """
+        Pass me a base64-encoded ObjectId
+        """
+
+        return self.find_one({"_id": ObjectId(base64.b64decode(_id))}, **kwargs)
+
+    @find_method
+    def find_by_b64ids(self, _ids, **kwargs):
+        """
+        Pass me a list of base64-encoded ObjectId
+        """
+
+        return self.find_by_ids([ObjectId(base64.b64decode(_id)) for _id in _ids], **kwargs)
 
     def list_column(self, *args, **kwargs):
         """
