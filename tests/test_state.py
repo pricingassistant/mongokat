@@ -1,6 +1,5 @@
 import copy
-import cPickle
-import pickle
+
 from bson import ObjectId
 
 
@@ -18,7 +17,7 @@ def test_deepcopy(Sample):
 
 
 # def test_pickle(Sample):
-
+#     import pickle
 #     s1 = Sample({"name": "X1", "url": "http://example.com", "id": ObjectId()})
 
 #     s2 = pickle.loads(pickle.dumps(s1))
@@ -30,7 +29,7 @@ def test_deepcopy(Sample):
 
 
 # def test_cpickle(Sample):
-
+#     import cPickle
 #     s1 = Sample({"name": "X1", "url": "http://example.com", "id": ObjectId()})
 
 #     s2 = cPickle.loads(cPickle.dumps(s1))

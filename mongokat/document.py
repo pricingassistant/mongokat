@@ -5,7 +5,11 @@ from uuid import UUID, uuid4
 from bson import BSON
 from pymongo.errors import OperationFailure
 import collections
-import cPickle
+
+try:
+    import cPickle
+except:
+    import _pickle as cPickle
 
 
 def _flatten_fetched_fields(fields_arg):
