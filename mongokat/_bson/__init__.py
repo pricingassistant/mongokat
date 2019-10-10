@@ -312,7 +312,15 @@ def _elements_to_dict(data, position, obj_end, opts, subdocument=None):
     end = obj_end - 1
     while position < end:
         (key, value, position) = _element_to_dict(data, position, obj_end, opts)
-        result[key] = value
+        if key in ["firstBatch", "nextBatch"] and type(opts.document_class) == tuple:
+            batches = []
+            for batch in value:
+                batch_document = opts.document_class[0](**opts.document_class[1])
+                batch_document.update(batch)
+                batches.append(batch_document)
+            result[key] = batches
+        else:
+            result[key] = value
     return result
 
 
@@ -759,10 +767,11 @@ def decode_all(data, codec_options=DEFAULT_CODEC_OPTIONS):
             obj_end = position + obj_size - 1
             if data[obj_end:position + obj_size] != b"\x00":
                 raise InvalidBSON("bad eoo")
-            docs.append(_elements_to_dict(data,
+            res = _elements_to_dict(data,
                                           position + 4,
                                           obj_end,
-                                          codec_options))
+                                          codec_options)
+            docs.append(res)
             position += obj_size
         return docs
     except InvalidBSON:

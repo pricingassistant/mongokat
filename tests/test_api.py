@@ -24,9 +24,7 @@ def test_collection_find(Sample):
 def test_b64ids(Sample):
 
     Sample.insert_one({"name": "XXX", "url": "http://example.com"})
-
     s = Sample.find_one()
-
     assert s.b64id == base64.b64encode(s["_id"].binary)
     assert Sample.find_by_b64id(s.b64id)["_id"] == s["_id"]
     assert list(Sample.find_by_b64ids([s.b64id]))[0]["_id"] == s["_id"]

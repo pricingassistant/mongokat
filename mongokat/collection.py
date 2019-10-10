@@ -192,7 +192,6 @@ class Collection(object):
                 }
             )
         )
-
         return self.collection.with_options(
             codec_options=codec_options,
             read_preference=read_preference,
