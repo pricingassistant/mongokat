@@ -12,7 +12,6 @@ import datetime
 # This is the only monkey-patch needed to use our own bson.decode_all function,
 # which implements https://jira.mongodb.org/browse/PYTHON-175
 pymongo.message.bson = _bson
-pymongo.collection.bson = _bson
 
 import bson
 
@@ -41,7 +40,6 @@ class CodecOptionsWithoutCheck(bson.codec_options.CodecOptions):
           if not tz_aware:
               raise ValueError(
                   "cannot specify tzinfo without also setting tz_aware=True")
-
       return tuple.__new__(
           cls, (document_class, tz_aware, uuid_representation,
           unicode_decode_error_handler, tzinfo))
