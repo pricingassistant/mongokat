@@ -3,8 +3,7 @@ Welcome to the API documentation for MongoKat.
 
 Please see the [README on GitHub](https://github.com/pricingassistant/mongokat) for more info about MongoKat.
 """
-
-from _bson import decode_all, _element_to_dict, _get_object, _elements_to_dict
+from mongokat._bson import decode_all, _element_to_dict, _get_object, _elements_to_dict
 
 import pymongo
 import datetime
